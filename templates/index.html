@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data Processor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .result p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Data Processor</h1>
+        <div class="form-group">
+            <label for="data-input">Enter JSON Data:</label>
+            <input type="text" id="data-input" placeholder='{"data": ["A", "C", "z"]}' />
+        </div>
+        <button onclick="submitData()">Submit</button>
+
+        <div class="form-group">
+            <label for="data-type">Select Data to Display:</label>
+            <select id="data-type">
+                <option value="alphabets">Alphabets</option>
+                <option value="numbers">Numbers</option>
+                <option value="highest_lowercase_alphabet">Highest Lowercase Alphabet</option>
+            </select>
+        </div>
+
+        <div class="result">
+            <h2>Results:</h2>
+            <div id="data-output"></div>
+        </div>
+    </div>
+
+    <script>
+        async function submitData() {
+            const dataInput = document.getElementById('data-input').value;
+            const dataType = document.getElementById('data-type').value;
+
+            try {
+                const response = await fetch('/bfhl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ data: JSON.parse(dataInput) }),
+                });
+
+                const result = await response.json();
+
+                if (result.is_success) {
+                    // Display selected data
+                    let output = '';
+                    switch (dataType) {
+                        case 'alphabets':
+                            output = `Alphabets: ${result.alphabets.join(', ')}`;
+                            break;
+                        case 'numbers':
+                            output = `Numbers: ${result.numbers.join(', ')}`;
+                            break;
+                        case 'highest_lowercase_alphabet':
+                            output = `Highest Lowercase Alphabet: ${result.highest_lowercase_alphabet.join(', ')}`;
+                            break;
+                        default:
+                            output = 'Select a valid option.';
+                            break;
+                    }
+                    document.getElementById('data-output').innerText = output;
+                } else {
+                    document.getElementById('data-output').innerText = 'Failed to process data.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('data-output').innerText = 'An error occurred.';
+            }
+        }
+    </script>
+</body>
+</html>
